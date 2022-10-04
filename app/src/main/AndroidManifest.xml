@@ -18,6 +18,8 @@
         <activity
             android:name=".MovieDetailActivity"
             android:exported="false" />
+        <activity android:name=".searchresults.MediaSearchResultsActivity"
+            />
         <activity
             android:name=".MainActivity"
             android:exported="true">
