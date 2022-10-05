@@ -33,6 +33,8 @@ public class MovieDetailActivity extends AppCompatActivity {
     public ActivityMovieDetailBinding activityMovieDetailBinding;
     public Handler handler;
 
+    //Need to add class level variables to view model
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,13 +46,18 @@ public class MovieDetailActivity extends AppCompatActivity {
         configureSearchViewProperties();
         if(!movieDetailActivityViewModel.hasHitAPI) {
             System.out.println("'QUERY' in MovieDetailActivity: '" + query + "'");
-            //Call omdb API
-            callAPIMediaSearch(query);
+            //Call omdb API NOT Search Call
 
             //Call StreamingAva API
-            //Configure ChipGroup
-            //Log info in mySQL DB
+
+            //Configure ChipGroup in call back
+
+            //Log info in mySQL DB once website or raspberry pi setup
+
+            //Below change in ViewModel variable needs to be done upon
+            //Successful call to api
             movieDetailActivityViewModel.hasHitAPI = true;
+
         } else {
             //Configure omdb Data if needed
             //Configure ChipGroup
@@ -143,18 +150,16 @@ public class MovieDetailActivity extends AppCompatActivity {
         });
     }
 
+    //This method pertains to SearchView
     public void callAPIMediaSearch(String searchedTerm) {
         NetworkServices.callOpenMovieDatabaseSearch(searchedTerm, omrmMovieSearchCallBack);
     }
 
+    //This is not callback for this activity but is used for SearchView
     public Callback<OpenMovieRequestMovieSearchModel> omrmMovieSearchCallBack = new Callback<OpenMovieRequestMovieSearchModel>() {
         @Override
         public void onResponse(Call<OpenMovieRequestMovieSearchModel> call, Response<OpenMovieRequestMovieSearchModel> response) {
-            //Update Movie Poster ImageView w/ Piccaso
-
-            //Configure ratings data
-
-            //Update movie data textview
+            //This is not callback for this activity but is used for SearchView
         }
 
         @Override
