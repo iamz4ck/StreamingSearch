@@ -1,27 +1,33 @@
 package com.zack.streamingsearch;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.SearchView;
 
+import com.google.android.material.chip.ChipGroup;
 import com.squareup.picasso.Picasso;
 import com.zack.streamingsearch.databinding.ActivityMovieDetailBinding;
+import com.zack.streamingsearch.openmoviedb.models.OpenMovieRequestModel;
 import com.zack.streamingsearch.openmoviedb.models.OpenMovieRequestMovieSearchModel;
 import com.zack.streamingsearch.openmoviedb.models.Rating;
 import com.zack.streamingsearch.searchresults.MediaSearchResultsActivity;
+import com.zack.streamingsearch.services.MovieTextElementService;
 import com.zack.streamingsearch.services.NetworkServices;
+import com.zack.streamingsearch.streamingavailability.chips.ChipStreamingService;
 import com.zack.streamingsearch.streamingavailability.models.Service;
 import com.zack.streamingsearch.streamingavailability.models.StreamingAvailabilityRequestModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,6 +38,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     public MovieDetailActivityViewModel movieDetailActivityViewModel;
     public ActivityMovieDetailBinding activityMovieDetailBinding;
     public Handler handler;
+    public ArrayList<ChipStreamingService> chipData;
 
     //Need to add class level variables to view model
 
@@ -44,7 +51,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         movieDetailActivityViewModel = new ViewModelProvider(this).get(MovieDetailActivityViewModel.class);
         String query = getIntent().getExtras().getString("query").trim();
         configureSearchViewProperties();
-        if(!movieDetailActivityViewModel.hasHitAPI) {
+        handler = new Handler();
+        if(!movieDetailActivityViewModel.hasHitOMDBAPI) {
             System.out.println("'QUERY' in MovieDetailActivity: '" + query + "'");
             //Call omdb API NOT Search Call
 
@@ -56,7 +64,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
             //Below change in ViewModel variable needs to be done upon
             //Successful call to api
-            movieDetailActivityViewModel.hasHitAPI = true;
+            //movieDetailActivityViewModel.hasHitAPI = true;
+            NetworkServices.callOpenMovieDatabaseShortWithTitle(query, omrmCallBackShort);
 
         } else {
             //Configure omdb Data if needed
@@ -148,6 +157,129 @@ public class MovieDetailActivity extends AppCompatActivity {
                 activityMovieDetailBinding.backDropImageView.setTag("defaultClear");
             }
         });
+    }
+
+    public void updateMovieDataTextView(OpenMovieRequestModel openMovieRequestModel) {
+        updateMoviePlotTextView(MovieTextElementService.ingestMovieDataForDisplay(openMovieRequestModel));
+    }
+
+
+    /**
+     * Updates MoviePlotTextView with movie information using Handler.
+     *
+     * @param updateText
+     */
+    public void updateMoviePlotTextView(String updateText) {
+        if(updateText != null) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println("[MediaDetailActivity] updateMoviePlotTextView = " + updateText);
+                    activityMovieDetailBinding.moviePlotTextView.setText(updateText);
+                }
+            });
+        }
+
+    }
+
+
+
+    public Callback<OpenMovieRequestModel> omrmCallBackShort = new Callback<OpenMovieRequestModel>() {
+        @Override
+        public void onResponse(Call<OpenMovieRequestModel> call, Response<OpenMovieRequestModel> response) {
+            updateMoviePosterImageView(response.body().getPoster());
+            configureRatingsData(response.body().getRatings(), response.body().getMetaScore(), response.body().getTitle());
+            updateMovieDataTextView(response.body());
+            movieDetailActivityViewModel.setMediaID(response.body().getImdbID());
+            movieDetailActivityViewModel.setOpenMovieRequestModel(response.body());
+            movieDetailActivityViewModel.setHasHitOMDBAPI(true);
+
+            //
+            System.out.println("[MediaDetailActivity] " + response.raw());
+            //Check if movie is in Database
+            //WebDatabaseService webDatabaseService = new WebDatabaseService(response.body().getImdbID(), response.body());
+            //webDatabaseService.start();
+
+            //
+            if (movieDetailActivityViewModel.mediaID != null) {
+
+                //Determine here if we are going to check streaming availabilty api.
+                System.out.println("Should call to Streaming Ava Api with mediaID: " + movieDetailActivityViewModel.mediaID);
+                //NetworkServices.callOpenMovieDatabaseLong(currentMovieID, omrmCallBackLong);
+                NetworkServices.callStreamingAvailability(movieDetailActivityViewModel.mediaID, sarmCallBack);
+            }
+        }
+
+        @Override
+        public void onFailure(Call<OpenMovieRequestModel> call, Throwable t) {
+
+        }
+    };
+
+    /**
+     * Updates text in RatingsTextView with available Streaming Service.
+     *
+     * @param services
+     */
+    public void updateStreamingServices(ArrayList<Service> services) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("[MediaDetailActivity] Checking Services. Size:" + services.size());
+                updateChipGroupWithStreamingServices(services);
+            }
+        });
+    }
+
+    /**
+     * Streaming Availability Request Model starts call to api and
+     * updates Back Drop Image and Checks for available Streaming
+     * Services.
+     */
+    public Callback<StreamingAvailabilityRequestModel> sarmCallBack = new Callback<StreamingAvailabilityRequestModel>() {
+        @Override
+        public void onResponse(Call<StreamingAvailabilityRequestModel> call, Response<StreamingAvailabilityRequestModel> response) {
+            if (response.isSuccessful()) {
+                updateBackDropImageView(response.body().backdropURLs.getHighestResolution());
+                updateStreamingServices(getAvailableServices(response.body()));
+                movieDetailActivityViewModel.setStreamingAvailabilityRequestModel(response.body());
+                movieDetailActivityViewModel.setMediaBackDropURL(response.body().backdropURLs.getHighestResolution());
+                movieDetailActivityViewModel.setHasAlreadyHitAPIForStreamingAvailability(true);
+
+            }
+        }
+
+        @Override
+        public void onFailure(Call<StreamingAvailabilityRequestModel> call, Throwable t) {
+            System.out.println("SA FAIL.");
+        }
+    };
+
+    public void updateChipGroupWithStreamingServices(ArrayList<Service> services) {
+        ChipGroup chipGroup = activityMovieDetailBinding.servicesChipGroup;
+        chipData = new ArrayList<>();
+        for (int i = 0; i < services.size(); i++) {
+            ChipStreamingService chipStreamingService = new ChipStreamingService(this, services.get(i).link);
+            chipStreamingService.chipURL = services.get(i).link;
+            chipStreamingService.setTag(services.get(i).serviceName + "," + services.get(i).link);
+            chipStreamingService.setText(services.get(i).serviceName);
+            if(services.get(i).isAvailable) {
+                chipStreamingService.serviceAvailability = true;
+                chipStreamingService.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.orangePrimary)));
+            }
+            chipStreamingService.setCloseIconVisible(true);
+            chipStreamingService.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(chipStreamingService.serviceAvailability) {
+                        Intent chipIntent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(chipStreamingService.chipURL));
+                        startActivity(chipIntent);
+                    }
+                }
+            });
+            chipData.add(chipStreamingService);
+            chipGroup.addView(chipStreamingService);
+        }
     }
 
     //This method pertains to SearchView
