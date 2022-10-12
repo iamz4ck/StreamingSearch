@@ -29,12 +29,14 @@ public class MediaSearchResultsActivity extends AppCompatActivity {
     public SearchResultsRecyclerAdapter recyclerViewAdapter;
     public SearchView mediaSearchView;
     public RecyclerView mediaSearchRecyclerView;
+    public String query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_search_results);
-        callAPIMediaSearch(getIntent().getExtras().getString("query"));
+        this.query = getIntent().getExtras().getString("query");
+        callAPIMediaSearch(query);
         configureMediaSearchView();
     }
 
@@ -94,7 +96,7 @@ public class MediaSearchResultsActivity extends AppCompatActivity {
     public void startSearchResultsRecyclerView(String searchTerm) {
         Intent intent = new Intent(this, MediaSearchResultsActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString("searchedTerm", searchTerm);
+        bundle.putString("query", searchTerm);
         intent.putExtras(bundle);
         startActivity(intent);
     }

@@ -39,10 +39,19 @@ public class SearchResultsRecyclerAdapter extends RecyclerView.Adapter<SearchRes
                 if(searchResults.get(myViewHolder.getAdapterPosition()) != null) {
                     //System.out.println("CLICK: " + searchResults.get(myViewHolder.getAdapterPosition()).getTitle() + " ," +
                     //        searchResults.get(myViewHolder.getAdapterPosition()).getImdbID());
+
+
+                    //Need to set tag so query that we are passing is not null
+                    System.out.println("search result clicked. info: not setup. onCreateViewHolder");
                     Intent intent = new Intent(view.getContext(), MovieDetailActivity.class);
                     Bundle bundle = new Bundle();
+
+
+                    bundle.putString("HandleCase", "MSR");
+
                     bundle.putString("query", searchResults.get(myViewHolder.getAdapterPosition()).getTitle());
                     bundle.putString("imdbID", searchResults.get(myViewHolder.getAdapterPosition()).getImdbID());
+                    intent.putExtras(bundle);
                     view.getContext().startActivity(intent);
                 }
             }
@@ -56,6 +65,7 @@ public class SearchResultsRecyclerAdapter extends RecyclerView.Adapter<SearchRes
             if(searchResults != null) {
                 MediaSearch mediaSearch = searchResults.get(position);
                 if(mediaSearch != null) {
+                    System.out.println("SETTING TAG: " + mediaSearch.getImdbID());
                     textView.setTag(mediaSearch.getImdbID());
                     String[] rowData = new String[3];
                     rowData[0] = mediaSearch.getTitle();

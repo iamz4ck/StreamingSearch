@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,8 +41,6 @@ public class MovieDetailActivity extends AppCompatActivity {
     public Handler handler;
     public ArrayList<ChipStreamingService> chipData;
 
-    //Need to add class level variables to view model
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +48,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         activityMovieDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_movie_detail);
         activityMovieDetailBinding.setLifecycleOwner(this);
         movieDetailActivityViewModel = new ViewModelProvider(this).get(MovieDetailActivityViewModel.class);
+
         String query = getIntent().getExtras().getString("query").trim();
         configureSearchViewProperties();
         handler = new Handler();
@@ -130,15 +130,14 @@ public class MovieDetailActivity extends AppCompatActivity {
      */
     public void configureRatingsData(Rating[] ratings, String metaScore, String title) {
         if (ratings != null) {
-            String ratingsResult = getNewLine();
+            String ratingsResult = title + getNewLine();
             if(ratings.length == 1) {
                 ratingsResult += ratings[0].getSource() + " Score: " + ratings[0].getValue() +  getNewLine();
             }
             if(ratings.length > 1) {
                 for (int i = 0; i < ratings.length; i++) {
-                    System.out.println("[MediaDetailActivity] configureRatingsData() Rating: " + ratings[i].getSource() + " ," + ratings[i].getValue()
-                            + "RatingsArray Length: " + ratings.length + " index: " + i);
-                    ratingsResult += ratings[i].getSource() + ": Score: " + ratings[i].getValue() + getNewLine();
+
+                    ratingsResult += ratings[i].getSource() + ": " + ratings[i].getValue() + getNewLine();
                 }
                 ratingsResult = ratingsResult + "Metascore: " + metaScore + getNewLine();
             }
@@ -312,7 +311,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         activityMovieDetailBinding.mediaSearchView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                activityMovieDetailBinding.mediaSearchView.setIconified(false);
             }
         });
 

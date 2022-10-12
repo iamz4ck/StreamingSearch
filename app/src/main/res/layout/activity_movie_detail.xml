@@ -118,7 +118,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="8dp"
                 android:alpha="9"
-
+                android:background="#D5D5D5"
                 app:layout_constraintTop_toBottomOf="@+id/searchMediaLabelTextView"
                 tools:layout_editor_absoluteX="0dp">
 
