@@ -40,7 +40,7 @@ public class NetworkServices {
                 .baseUrl(TMDBConfigInfo.apiBaseURL)
                 .addConverterFactory(GsonConverterFactory.create());
         tmdbDatabaseRetrofit = retrofitBuilderTMDB.build();
-        tmdbClient = (TMDBClient) tmdbDatabaseRetrofit.create(TMDBClient.class);
+        tmdbClient = tmdbDatabaseRetrofit.create(TMDBClient.class);
     }
 
     public static void buildOpenMovieDatabaseRetroFitBase() {
@@ -48,7 +48,7 @@ public class NetworkServices {
                 .baseUrl(openMovieBaseURL)
                 .addConverterFactory(GsonConverterFactory.create());
         openMovieDatabaseRetrofit = retrofitBuilderOpenMovieDatabase.build();
-        openMovieDatabaseClient = (OpenMovieDatabaseClient) openMovieDatabaseRetrofit.create(OpenMovieDatabaseClient.class);
+        openMovieDatabaseClient = openMovieDatabaseRetrofit.create(OpenMovieDatabaseClient.class);
     }
 
     public static void buildStreamingAvailabilityRetroFitBase() {
@@ -56,7 +56,7 @@ public class NetworkServices {
                 .baseUrl(streamingAvailabilityServiceURL)
                 .addConverterFactory(GsonConverterFactory.create());
         streamingAvailabilityRetrofit = retrofitBuilderStreamAvailability.build();
-        streamingAvailabilityClient = (StreamingAvailabilityClient) streamingAvailabilityRetrofit.create(StreamingAvailabilityClient.class);
+        streamingAvailabilityClient = streamingAvailabilityRetrofit.create(StreamingAvailabilityClient.class);
 
     }
 

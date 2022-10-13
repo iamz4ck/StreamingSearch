@@ -45,7 +45,7 @@ public class MediaSearchResultsActivity extends AppCompatActivity {
     }
 
     public void configureRecyclerView(List movieSearchResults) {
-        mediaSearchRecyclerView = (RecyclerView) findViewById(R.id.mediaSearchRecyclerView);
+        mediaSearchRecyclerView = findViewById(R.id.mediaSearchRecyclerView);
         recyclerViewAdapter = new SearchResultsRecyclerAdapter(movieSearchResults,
                 new MediaClickListener() {
                     @Override

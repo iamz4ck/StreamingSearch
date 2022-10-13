@@ -1,19 +1,18 @@
 package com.zack.streamingsearch;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.SearchView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.chip.ChipGroup;
 import com.squareup.picasso.Picasso;
@@ -36,6 +35,7 @@ import retrofit2.Response;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
+
     public MovieDetailActivityViewModel movieDetailActivityViewModel;
     public ActivityMovieDetailBinding activityMovieDetailBinding;
     public Handler handler;
@@ -45,32 +45,26 @@ public class MovieDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+        handler = new Handler();
         activityMovieDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_movie_detail);
         activityMovieDetailBinding.setLifecycleOwner(this);
         movieDetailActivityViewModel = new ViewModelProvider(this).get(MovieDetailActivityViewModel.class);
-
         String query = getIntent().getExtras().getString("query").trim();
         configureSearchViewProperties();
-        handler = new Handler();
+        updateBackDropImageViewWithClear();
+
         if(!movieDetailActivityViewModel.hasHitOMDBAPI) {
             System.out.println("'QUERY' in MovieDetailActivity: '" + query + "'");
-            //Call omdb API NOT Search Call
-
-            //Call StreamingAva API
-
-            //Configure ChipGroup in call back
-
-            //Log info in mySQL DB once website or raspberry pi setup
-
-            //Below change in ViewModel variable needs to be done upon
-            //Successful call to api
-            //movieDetailActivityViewModel.hasHitAPI = true;
+            //Call omdb API
+            //If Successful it will also call Streaming
+            //Ava Api and populate chipgroup with all 11 streaming
+            //services
             NetworkServices.callOpenMovieDatabaseShortWithTitle(query, omrmCallBackShort);
+            //Log info in mySQL DB once website or raspberry pi setup
 
         } else {
             //Configure omdb Data if needed
             //Configure ChipGroup
-
         }
     }
 
@@ -178,7 +172,6 @@ public class MovieDetailActivity extends AppCompatActivity {
                 }
             });
         }
-
     }
 
 
@@ -192,19 +185,12 @@ public class MovieDetailActivity extends AppCompatActivity {
             movieDetailActivityViewModel.setMediaID(response.body().getImdbID());
             movieDetailActivityViewModel.setOpenMovieRequestModel(response.body());
             movieDetailActivityViewModel.setHasHitOMDBAPI(true);
-
             //
             System.out.println("[MediaDetailActivity] " + response.raw());
             //Check if movie is in Database
             //WebDatabaseService webDatabaseService = new WebDatabaseService(response.body().getImdbID(), response.body());
             //webDatabaseService.start();
-
-            //
             if (movieDetailActivityViewModel.mediaID != null) {
-
-                //Determine here if we are going to check streaming availabilty api.
-                System.out.println("Should call to Streaming Ava Api with mediaID: " + movieDetailActivityViewModel.mediaID);
-                //NetworkServices.callOpenMovieDatabaseLong(currentMovieID, omrmCallBackLong);
                 NetworkServices.callStreamingAvailability(movieDetailActivityViewModel.mediaID, sarmCallBack);
             }
         }
@@ -224,11 +210,11 @@ public class MovieDetailActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                System.out.println("[MediaDetailActivity] Checking Services. Size:" + services.size());
                 updateChipGroupWithStreamingServices(services);
             }
         });
     }
+
 
     /**
      * Streaming Availability Request Model starts call to api and
@@ -240,7 +226,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         public void onResponse(Call<StreamingAvailabilityRequestModel> call, Response<StreamingAvailabilityRequestModel> response) {
             if (response.isSuccessful()) {
                 updateBackDropImageView(response.body().backdropURLs.getHighestResolution());
+                //
+                // updateStreamingServices populates chipgroup
                 updateStreamingServices(getAvailableServices(response.body()));
+                //
                 movieDetailActivityViewModel.setStreamingAvailabilityRequestModel(response.body());
                 movieDetailActivityViewModel.setMediaBackDropURL(response.body().backdropURLs.getHighestResolution());
                 movieDetailActivityViewModel.setHasAlreadyHitAPIForStreamingAvailability(true);

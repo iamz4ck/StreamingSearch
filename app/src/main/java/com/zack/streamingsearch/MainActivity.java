@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void configureRecyclerView(ArrayList<TMDBMediaModel> trendingMediaList) {
-        trendingMediaRecyclerView = (RecyclerView) findViewById(R.id.trendingMediaRecyclerView);
+        trendingMediaRecyclerView = findViewById(R.id.trendingMediaRecyclerView);
         trendingMediaRecyclerViewAdapter = new TrendingMediaRecyclerAdapter(trendingMediaList);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
         RecyclerView.LayoutManager layoutManager = linearLayoutManager;
