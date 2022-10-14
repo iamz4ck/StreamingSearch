@@ -3,7 +3,10 @@ package com.zack.streamingsearch;
 import androidx.lifecycle.ViewModel;
 
 import com.zack.streamingsearch.openmoviedb.models.OpenMovieRequestModel;
+import com.zack.streamingsearch.streamingavailability.models.Service;
 import com.zack.streamingsearch.streamingavailability.models.StreamingAvailabilityRequestModel;
+
+import java.util.ArrayList;
 
 public class MovieDetailActivityViewModel extends ViewModel {
 
@@ -11,6 +14,7 @@ public class MovieDetailActivityViewModel extends ViewModel {
     public boolean hasHitStreamingAvailabilityAPI = false;
     public OpenMovieRequestModel openMovieRequestModel;
     public StreamingAvailabilityRequestModel streamingAvailabilityRequestModel;
+    public ArrayList<Service> streamingServicesData;
     public String mediaID;
     public String mediaTitle;
     public String mediaPosterURL;
@@ -24,6 +28,10 @@ public class MovieDetailActivityViewModel extends ViewModel {
 
     public void setMediaData(String mediaData) {
         this.mediaData = mediaData;
+    }
+
+    public void setStreamingServicesData(ArrayList<Service> services) {
+        this.streamingServicesData = services;
     }
 
     public OpenMovieRequestModel getOpenMovieRequestModel() {

@@ -52,22 +52,21 @@ public class MovieDetailActivity extends AppCompatActivity {
         String query = getIntent().getExtras().getString("query").trim();
         configureSearchViewProperties();
         updateBackDropImageViewWithClear();
-
         if(!movieDetailActivityViewModel.hasHitOMDBAPI) {
-            System.out.println("'QUERY' in MovieDetailActivity: '" + query + "'");
             //Call omdb API
             //If Successful it will also call Streaming
             //Ava Api and populate chipgroup with all 11 streaming
             //services
             NetworkServices.callOpenMovieDatabaseShortWithTitle(query, omrmCallBackShort);
             //Log info in mySQL DB once website or raspberry pi setup
-
         } else {
-            //Configure omdb Data if needed
             //Configure ChipGroup
             updateMoviePosterImageView(movieDetailActivityViewModel.mediaPosterURL);
             updateMovieRatings(movieDetailActivityViewModel.mediaRatings);
             updateMovieDataTextView(movieDetailActivityViewModel.openMovieRequestModel);
+
+            updateStreamingServices(movieDetailActivityViewModel.streamingServicesData);
+            updateBackDropImageView(movieDetailActivityViewModel.mediaBackDropURL);
         }
     }
 
@@ -97,7 +96,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                System.out.println("[MediaDetailActivity] updateBackDropImageView() URL: " + url);
+                movieDetailActivityViewModel.setMediaBackDropURL(url);
                 activityMovieDetailBinding.backDropImageView.setTag(url);
                 Picasso.get().load(url).into(activityMovieDetailBinding.backDropImageView);
             }
@@ -114,8 +113,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                System.out.println("[MediaDetailActivity] updateMoviePosterImageView() URL: " + url);
-
                 movieDetailActivityViewModel.setMediaPosterURL(url);
                 activityMovieDetailBinding.moviePosterImageView.setTag(url);
                 Picasso.get().load(url).into(activityMovieDetailBinding.moviePosterImageView);
@@ -152,7 +149,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Drawable drawable = getResources().getDrawable(R.drawable.placeholder220x220);
-                System.out.println("[MediaDetailActivity] updateBackDropImageViewWithClear() setting place holder image.");
                 activityMovieDetailBinding.backDropImageView.setImageDrawable(drawable);
                 activityMovieDetailBinding.backDropImageView.setTag("defaultClear");
             }
@@ -189,12 +185,9 @@ public class MovieDetailActivity extends AppCompatActivity {
     public Callback<OpenMovieRequestModel> omrmCallBackShort = new Callback<OpenMovieRequestModel>() {
         @Override
         public void onResponse(Call<OpenMovieRequestModel> call, Response<OpenMovieRequestModel> response) {
-
             updateMoviePosterImageView(response.body().getPoster());
             updateRatingsData(response.body().getRatings(), response.body().getMetaScore(), response.body().getTitle());
             updateMovieDataTextView(response.body());
-
-
             movieDetailActivityViewModel.setMediaID(response.body().getImdbID());
             movieDetailActivityViewModel.setOpenMovieRequestModel(response.body());
             movieDetailActivityViewModel.setHasHitOMDBAPI(true);
@@ -219,6 +212,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
+                movieDetailActivityViewModel.setStreamingServicesData(services);
                 updateChipGroupWithStreamingServices(services);
             }
         });
