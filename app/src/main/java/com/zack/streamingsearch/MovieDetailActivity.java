@@ -65,8 +65,12 @@ public class MovieDetailActivity extends AppCompatActivity {
         } else {
             //Configure omdb Data if needed
             //Configure ChipGroup
+            updateMoviePosterImageView(movieDetailActivityViewModel.mediaPosterURL);
+            updateMovieRatings(movieDetailActivityViewModel.mediaRatings);
+            updateMovieDataTextView(movieDetailActivityViewModel.openMovieRequestModel);
         }
     }
+
 
     /**
      * Updates RatingsTextView with movie information using Handler.
@@ -77,6 +81,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
+                movieDetailActivityViewModel.setMediaRatings(updateText);
                 activityMovieDetailBinding.ratingsTextView.setText(updateText);
             }
         });
@@ -110,6 +115,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             @Override
             public void run() {
                 System.out.println("[MediaDetailActivity] updateMoviePosterImageView() URL: " + url);
+
+                movieDetailActivityViewModel.setMediaPosterURL(url);
                 activityMovieDetailBinding.moviePosterImageView.setTag(url);
                 Picasso.get().load(url).into(activityMovieDetailBinding.moviePosterImageView);
             }
@@ -122,7 +129,7 @@ public class MovieDetailActivity extends AppCompatActivity {
      * @param ratings
      * @param metaScore
      */
-    public void configureRatingsData(Rating[] ratings, String metaScore, String title) {
+    public void updateRatingsData(Rating[] ratings, String metaScore, String title) {
         if (ratings != null) {
             String ratingsResult = title + getNewLine();
             if(ratings.length == 1) {
@@ -153,6 +160,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     }
 
     public void updateMovieDataTextView(OpenMovieRequestModel openMovieRequestModel) {
+        movieDetailActivityViewModel.setMediaData(MovieTextElementService.ingestMovieDataForDisplay(openMovieRequestModel));
         updateMoviePlotTextView(MovieTextElementService.ingestMovieDataForDisplay(openMovieRequestModel));
     }
 
@@ -175,24 +183,25 @@ public class MovieDetailActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Callback if successful will update and store response data
+     */
     public Callback<OpenMovieRequestModel> omrmCallBackShort = new Callback<OpenMovieRequestModel>() {
         @Override
         public void onResponse(Call<OpenMovieRequestModel> call, Response<OpenMovieRequestModel> response) {
+
             updateMoviePosterImageView(response.body().getPoster());
-            configureRatingsData(response.body().getRatings(), response.body().getMetaScore(), response.body().getTitle());
+            updateRatingsData(response.body().getRatings(), response.body().getMetaScore(), response.body().getTitle());
             updateMovieDataTextView(response.body());
+
+
             movieDetailActivityViewModel.setMediaID(response.body().getImdbID());
             movieDetailActivityViewModel.setOpenMovieRequestModel(response.body());
             movieDetailActivityViewModel.setHasHitOMDBAPI(true);
-            //
-            System.out.println("[MediaDetailActivity] " + response.raw());
-            //Check if movie is in Database
-            //WebDatabaseService webDatabaseService = new WebDatabaseService(response.body().getImdbID(), response.body());
-            //webDatabaseService.start();
             if (movieDetailActivityViewModel.mediaID != null) {
                 NetworkServices.callStreamingAvailability(movieDetailActivityViewModel.mediaID, sarmCallBack);
             }
+            //Add method to store info in seperate api
         }
 
         @Override

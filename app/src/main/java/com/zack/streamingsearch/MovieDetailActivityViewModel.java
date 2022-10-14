@@ -15,7 +15,16 @@ public class MovieDetailActivityViewModel extends ViewModel {
     public String mediaTitle;
     public String mediaPosterURL;
     public String mediaBackDropURL;
+    public String mediaRatings;
+    public String mediaData;
 
+    public void setMediaRatings(String mediaRatings) {
+        this.mediaRatings = mediaRatings;
+    }
+
+    public void setMediaData(String mediaData) {
+        this.mediaData = mediaData;
+    }
 
     public OpenMovieRequestModel getOpenMovieRequestModel() {
         return openMovieRequestModel;
@@ -46,7 +55,9 @@ public class MovieDetailActivityViewModel extends ViewModel {
         return mediaBackDropURL;
     }
 
-
+    public void setMediaPosterURL(String url) {
+        this.mediaPosterURL = url;
+    }
 
     public void setHasAlreadyHitAPIForStreamingAvailability(boolean hasHitStreamingAvailabilityAPI) {
         this.hasHitStreamingAvailabilityAPI = hasHitStreamingAvailabilityAPI;
