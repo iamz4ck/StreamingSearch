@@ -53,23 +53,23 @@ public class MovieDetailActivity extends AppCompatActivity {
         configureSearchViewProperties();
         updateBackDropImageViewWithClear();
         if(!movieDetailActivityViewModel.hasHitOMDBAPI) {
-            //Call omdb API
-            //If Successful it will also call Streaming
-            //Ava Api and populate chipgroup with all 11 streaming
-            //services
+            //*Check Streaming Ava Api doc to see if it can take TMDB ids as well*
             NetworkServices.callOpenMovieDatabaseShortWithTitle(query, omrmCallBackShort);
             //Log info in mySQL DB once website or raspberry pi setup
         } else {
-            //Configure ChipGroup
             updateMoviePosterImageView(movieDetailActivityViewModel.mediaPosterURL);
             updateMovieRatings(movieDetailActivityViewModel.mediaRatings);
             updateMovieDataTextView(movieDetailActivityViewModel.openMovieRequestModel);
-
             updateStreamingServices(movieDetailActivityViewModel.streamingServicesData);
             updateBackDropImageView(movieDetailActivityViewModel.mediaBackDropURL);
+            testPrintOutOfMysql(movieDetailActivityViewModel.openMovieRequestModel, movieDetailActivityViewModel.streamingAvailabilityRequestModel);
         }
     }
 
+    public void testPrintOutOfMysql(OpenMovieRequestModel openMovieRequestModel, StreamingAvailabilityRequestModel streamingAvailabilityRequestModel) {
+        String testResult = NetworkServices.createMysqlToInsertQueryDataIntoZDB("MEDIA_TABLE", openMovieRequestModel, streamingAvailabilityRequestModel);
+        System.out.println(testResult);
+    }
 
     /**
      * Updates RatingsTextView with movie information using Handler.
@@ -160,7 +160,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         updateMoviePlotTextView(MovieTextElementService.ingestMovieDataForDisplay(openMovieRequestModel));
     }
 
-
     /**
      * Updates MoviePlotTextView with movie information using Handler.
      *
@@ -177,7 +176,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             });
         }
     }
-
 
     /**
      * Callback if successful will update and store response data
@@ -218,7 +216,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         });
     }
 
-
     /**
      * Streaming Availability Request Model starts call to api and
      * updates Back Drop Image and Checks for available Streaming
@@ -229,14 +226,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         public void onResponse(Call<StreamingAvailabilityRequestModel> call, Response<StreamingAvailabilityRequestModel> response) {
             if (response.isSuccessful()) {
                 updateBackDropImageView(response.body().backdropURLs.getHighestResolution());
-                //
-                // updateStreamingServices populates chipgroup
                 updateStreamingServices(getAvailableServices(response.body()));
-                //
                 movieDetailActivityViewModel.setStreamingAvailabilityRequestModel(response.body());
                 movieDetailActivityViewModel.setMediaBackDropURL(response.body().backdropURLs.getHighestResolution());
                 movieDetailActivityViewModel.setHasAlreadyHitAPIForStreamingAvailability(true);
-
             }
         }
 
@@ -272,24 +265,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             chipGroup.addView(chipStreamingService);
         }
     }
-
-    //This method pertains to SearchView
-    public void callAPIMediaSearch(String searchedTerm) {
-        NetworkServices.callOpenMovieDatabaseSearch(searchedTerm, omrmMovieSearchCallBack);
-    }
-
-    //This is not callback for this activity but is used for SearchView
-    public Callback<OpenMovieRequestMovieSearchModel> omrmMovieSearchCallBack = new Callback<OpenMovieRequestMovieSearchModel>() {
-        @Override
-        public void onResponse(Call<OpenMovieRequestMovieSearchModel> call, Response<OpenMovieRequestMovieSearchModel> response) {
-            //This is not callback for this activity but is used for SearchView
-        }
-
-        @Override
-        public void onFailure(Call<OpenMovieRequestMovieSearchModel> call, Throwable t) {
-            System.out.println("[MovieSearchResultsActivity] callback omrmMovieSearchCallBack ERROR " + t.getMessage());
-        }
-    };
 
     public void startSearchResultsRecyclerView(String searchTerm) {
         Intent intent = new Intent(this, MediaSearchResultsActivity.class);

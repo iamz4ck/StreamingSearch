@@ -163,4 +163,129 @@ public class NetworkServices {
             callTMDBTrendingWeekly(callback);
         }
     }
+
+    //Need these Methods done before we are able to store in mysql DB. -
+    //Need to replace comma with special character then replace again upon receiving from DB
+    public static String getSanitizedSQLActors(OpenMovieRequestModel openMovieRequestModel) {
+        String actorsRaw = openMovieRequestModel.getActors();
+        return actorsRaw.replace(",", " ");
+    }
+
+    public static String getSanitizedSQLPlot(OpenMovieRequestModel openMovieRequestModel) {
+        return openMovieRequestModel.getPlot().replace("'", " ");
+    }
+
+    public static String getSanitizedSQLRatings(OpenMovieRequestModel openMovieRequestModel) {
+        String result = "";
+        if(openMovieRequestModel.getRatings().length > 0) {
+            result = openMovieRequestModel.getRatings()[0].getSource() + " Score: " + openMovieRequestModel.getRatings()[0].getValue() + " ";
+        }
+        if(openMovieRequestModel.getRatings().length > 1) {
+            result += openMovieRequestModel.getRatings()[1].getSource() + " Score: " + openMovieRequestModel.getRatings()[1].getValue() + " ";
+        }
+        if(openMovieRequestModel.getRatings().length > 2) {
+            result += openMovieRequestModel.getRatings()[2].getSource() + " Score: " + openMovieRequestModel.getRatings()[2].getValue() + " ";
+        }
+        return result;
+    }
+
+    ////end mysql DB methods we need -- ^
+
+    public static String createMysqlToInsertQueryDataIntoZDB(String tableName, OpenMovieRequestModel openMovieRequestModel, StreamingAvailabilityRequestModel streamingAvailabilityRequestModel) {
+        String mySQLInput = "INSERT INTO " + tableName + " ";
+        String mySQLElementSeparator = ", ";
+        String mySQLResult = mySQLInput + "VALUES" + "(" +
+                "'" + openMovieRequestModel.getTitle() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getYear() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getRated() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getReleased() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getRuntime() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getGenre() + "'" + //Needs to be sanitized for mysql
+                mySQLElementSeparator + "'" + openMovieRequestModel.getDirector() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getWriter() + "'" + //Needs to be sanitized for mysql
+                mySQLElementSeparator + "'" + getSanitizedSQLActors(openMovieRequestModel) + "'" +
+                mySQLElementSeparator + "'" + getSanitizedSQLPlot(openMovieRequestModel) + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getLanguage() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getCountry() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getAwards() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getPoster() + "'" +
+                mySQLElementSeparator + "'" + getSanitizedSQLRatings(openMovieRequestModel) + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getMetaScore() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getImdbRating() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getImdbVotes() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getImdbID() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getType() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getDvd() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getBoxOffice() + "'" + //Needs to be sanitized for mysql has commas
+                mySQLElementSeparator + "'" + openMovieRequestModel.getProduction() + "'" +
+                mySQLElementSeparator + "'" + openMovieRequestModel.getWebsite() + "'" +
+                ");";
+                //Need to add Streaming Ava to this mySql statement.
+        return mySQLResult;
+    }
+
+    /*
+    omdb info
+    -title
+    -year
+    -rated
+    -released
+    -runtime
+    -genre
+    -director
+    -writer
+    -actors
+    -movie plot 'needs scrubbed of chars to store as string in sql'
+    -language
+    -country
+    -awards
+    -poster url
+    -Ratings 'as string'
+    -MetaScore
+    -imdbRating
+    -imdbVotes
+    -imdbID
+    -type
+    -dvd
+    -Box office
+    -production
+    -website
+    -date added
+    -response 'probably dont need'
+
+    Streaming ava info
+    -peacock
+    -netflix
+    -hulu
+    -prime
+    -disney
+    -hbo
+    -paramount
+    -starz
+    -showtime
+    -apple
+    -mubi
+    -------------
+    -age
+    -backdropPath
+    -backdropURLs 'contains urls for multiple resolutions'
+    -cast
+    -countries
+    -genres
+    -imdbID
+    -imdbRating
+    -imdbVoteCount
+    -originalTitle
+    -overview
+    -posterPath
+    -posterURLs 'contains urls for multiple resolutions'
+    -runtime
+    -significants 'API spells this this way'
+    -streamingInfo 'contains which stream media is on'
+    -tagline
+    -title
+    -tmdbID
+    -video
+    -year
+     */
 }

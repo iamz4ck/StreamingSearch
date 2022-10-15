@@ -16,7 +16,6 @@ public class MovieDetailActivityViewModel extends ViewModel {
     public StreamingAvailabilityRequestModel streamingAvailabilityRequestModel;
     public ArrayList<Service> streamingServicesData;
     public String mediaID;
-    public String mediaTitle;
     public String mediaPosterURL;
     public String mediaBackDropURL;
     public String mediaRatings;
@@ -32,35 +31,6 @@ public class MovieDetailActivityViewModel extends ViewModel {
 
     public void setStreamingServicesData(ArrayList<Service> services) {
         this.streamingServicesData = services;
-    }
-
-    public OpenMovieRequestModel getOpenMovieRequestModel() {
-        return openMovieRequestModel;
-    }
-
-    public StreamingAvailabilityRequestModel getStreamingAvailabilityRequestModel() {
-        //Handle null returns
-        return streamingAvailabilityRequestModel;
-    }
-
-    public String getMediaID() {
-        //Handle null returns
-        return mediaID;
-    }
-
-    public String getMediaTitle() {
-        //Handle null returns
-        return mediaTitle;
-    }
-
-    public String getMediaPosterURL() {
-        //Handle null returns
-        return mediaPosterURL;
-    }
-
-    public String getMediaBackDropURL() {
-        //Handle null returns
-        return mediaBackDropURL;
     }
 
     public void setMediaPosterURL(String url) {
