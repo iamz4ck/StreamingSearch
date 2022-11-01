@@ -52,6 +52,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         String query = getIntent().getExtras().getString("query").trim();
         configureSearchViewProperties();
         updateBackDropImageViewWithClear();
+
+        //Need to implement a mediaType when starting activity
+        //to handle series and games
+
         if(!movieDetailActivityViewModel.hasHitOMDBAPI) {
             //*Check Streaming Ava Api doc to see if it can take TMDB ids as well*
             NetworkServices.callOpenMovieDatabaseShortWithTitle(query, omrmCallBackShort);
@@ -170,7 +174,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    System.out.println("[MediaDetailActivity] updateMoviePlotTextView = " + updateText);
                     activityMovieDetailBinding.moviePlotTextView.setText(updateText);
                 }
             });
@@ -197,7 +200,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         @Override
         public void onFailure(Call<OpenMovieRequestModel> call, Throwable t) {
-
+            System.out.println("OMRM CALL BACK onFailure() " + t.getMessage());
         }
     };
 
@@ -235,7 +238,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         @Override
         public void onFailure(Call<StreamingAvailabilityRequestModel> call, Throwable t) {
-            System.out.println("SA FAIL.");
+            System.out.println("SARM CALL BACK onFailure() " + t.getMessage());
         }
     };
 

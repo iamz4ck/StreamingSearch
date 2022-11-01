@@ -15,11 +15,11 @@ public class MovieDetailActivityViewModel extends ViewModel {
     public OpenMovieRequestModel openMovieRequestModel;
     public StreamingAvailabilityRequestModel streamingAvailabilityRequestModel;
     public ArrayList<Service> streamingServicesData;
-    public String mediaID;
-    public String mediaPosterURL;
-    public String mediaBackDropURL;
-    public String mediaRatings;
-    public String mediaData;
+    public String mediaID,
+                  mediaPosterURL,
+                  mediaBackDropURL,
+                  mediaRatings,
+                  mediaData;
 
     public void setMediaRatings(String mediaRatings) {
         this.mediaRatings = mediaRatings;
@@ -54,6 +54,7 @@ public class MovieDetailActivityViewModel extends ViewModel {
     }
 
     public void setHasHitOMDBAPI(boolean hasHitOMDBAPI) {
+        System.out.println("[MovieDetailActivityViewModel] hasHitOMDBAPI = '" + hasHitOMDBAPI + "'");
         this.hasHitOMDBAPI = hasHitOMDBAPI;
     }
 

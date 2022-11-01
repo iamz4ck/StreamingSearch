@@ -102,12 +102,14 @@ public class NetworkServices {
     }
 
     public static void callOpenMovieDatabaseShortWithTitle(String movieTitle, Callback<OpenMovieRequestModel> callback) {
-        System.out.println("[NetworkServices] USING DATA.");
+
         if(openMovieDatabaseClient != null) {
             Call<OpenMovieRequestModel> call = openMovieDatabaseClient.getMovieDataByTitleSearch(movieTitle, apiKey);
+            System.out.println("[NetworkServices] callOpenMovieDatabaseShortWithTitle() USING DATA. " + " Movie Title: " + movieTitle);
             call.enqueue(callback);
         } else {
             buildOpenMovieDatabaseRetroFitBase();
+            System.out.println("[NetworkServices] creating retrofit connection...");
             callOpenMovieDatabaseShortWithTitle(movieTitle, callback);
         }
     }
@@ -155,11 +157,14 @@ public class NetworkServices {
     }
 
     public static void callTMDBTrendingWeekly(Callback<TMDBPage> callback) {
+
         if(tmdbClient != null) {
             Call call = tmdbClient.getTMDBMediaTrendingWeek(TMDBConfigInfo.apikey);
+            System.out.println("[NetworkServices] callTMDBTrendingWeekly() USING DATA.");
             call.enqueue(callback);
         } else {
             buildTMDBRetroFitBase();
+            System.out.println("[NetworkServices] creating retrofit connection...");
             callTMDBTrendingWeekly(callback);
         }
     }
