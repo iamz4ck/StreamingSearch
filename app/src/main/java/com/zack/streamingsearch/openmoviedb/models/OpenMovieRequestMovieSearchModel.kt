@@ -11,7 +11,10 @@ data class OpenMovieRequestMovieSearchModel(
     val totalResults: String? = null,
 
     @SerializedName("Response")
-    val response: String? = null
+    val response: String? = null,
+
+    @SerializedName("Error")
+    val error: String? = null
 )
 
 

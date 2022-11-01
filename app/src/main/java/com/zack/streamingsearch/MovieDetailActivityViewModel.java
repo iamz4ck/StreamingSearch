@@ -19,10 +19,15 @@ public class MovieDetailActivityViewModel extends ViewModel {
                   mediaPosterURL,
                   mediaBackDropURL,
                   mediaRatings,
-                  mediaData;
+                  mediaData,
+                  mediaType;
 
     public void setMediaRatings(String mediaRatings) {
         this.mediaRatings = mediaRatings;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
     }
 
     public void setMediaData(String mediaData) {

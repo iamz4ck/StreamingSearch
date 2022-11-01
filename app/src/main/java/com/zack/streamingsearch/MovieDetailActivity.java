@@ -40,6 +40,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     public ActivityMovieDetailBinding activityMovieDetailBinding;
     public Handler handler;
     public ArrayList<ChipStreamingService> chipData;
+    public String mediaType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         activityMovieDetailBinding.setLifecycleOwner(this);
         movieDetailActivityViewModel = new ViewModelProvider(this).get(MovieDetailActivityViewModel.class);
         String query = getIntent().getExtras().getString("query").trim();
+
+
+
+
         configureSearchViewProperties();
         updateBackDropImageViewWithClear();
 
@@ -58,15 +63,49 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         if(!movieDetailActivityViewModel.hasHitOMDBAPI) {
             //*Check Streaming Ava Api doc to see if it can take TMDB ids as well*
+
+
+
+            ////////////////////
+            //Calling with title makes games not configure correctly
+            //needs to be changed to imdbID
+            /////////////////
             NetworkServices.callOpenMovieDatabaseShortWithTitle(query, omrmCallBackShort);
+            /////////////////////
+
+
+
             //Log info in mySQL DB once website or raspberry pi setup
         } else {
-            updateMoviePosterImageView(movieDetailActivityViewModel.mediaPosterURL);
-            updateMovieRatings(movieDetailActivityViewModel.mediaRatings);
-            updateMovieDataTextView(movieDetailActivityViewModel.openMovieRequestModel);
-            updateStreamingServices(movieDetailActivityViewModel.streamingServicesData);
-            updateBackDropImageView(movieDetailActivityViewModel.mediaBackDropURL);
-            testPrintOutOfMysql(movieDetailActivityViewModel.openMovieRequestModel, movieDetailActivityViewModel.streamingAvailabilityRequestModel);
+        //Need to handle network service call when searching for a game opposed to movie
+        // so that json comes back correctly just need to check
+            if(movieDetailActivityViewModel.mediaType.contains("movie")) {
+                System.out.println("IF CAUGHT MEDIATYPE::: " + movieDetailActivityViewModel.mediaType);
+                updateMoviePosterImageView(movieDetailActivityViewModel.mediaPosterURL);
+                updateMovieRatings(movieDetailActivityViewModel.mediaRatings);
+                updateMovieDataTextView(movieDetailActivityViewModel.openMovieRequestModel);
+                updateStreamingServices(movieDetailActivityViewModel.streamingServicesData);
+                updateBackDropImageView(movieDetailActivityViewModel.mediaBackDropURL);
+                testPrintOutOfMysql(movieDetailActivityViewModel.openMovieRequestModel, movieDetailActivityViewModel.streamingAvailabilityRequestModel);
+            }
+
+            if(movieDetailActivityViewModel.mediaType.contains("series")) {
+                //Temporarily  series is setup the same as movie
+                System.out.println("IF CAUGHT MEDIATYPE::: " + movieDetailActivityViewModel.mediaType);
+                updateMoviePosterImageView(movieDetailActivityViewModel.mediaPosterURL);
+                updateMovieRatings(movieDetailActivityViewModel.mediaRatings);
+                updateMovieDataTextView(movieDetailActivityViewModel.openMovieRequestModel);
+                updateStreamingServices(movieDetailActivityViewModel.streamingServicesData);
+                updateBackDropImageView(movieDetailActivityViewModel.mediaBackDropURL);
+                testPrintOutOfMysql(movieDetailActivityViewModel.openMovieRequestModel, movieDetailActivityViewModel.streamingAvailabilityRequestModel);
+            }
+
+            if(movieDetailActivityViewModel.mediaType.contains("game")) {
+                System.out.println("IF CAUGHT MEDIATYPE::: " + movieDetailActivityViewModel.mediaType);
+            }
+
+
+
         }
     }
 
@@ -186,14 +225,24 @@ public class MovieDetailActivity extends AppCompatActivity {
     public Callback<OpenMovieRequestModel> omrmCallBackShort = new Callback<OpenMovieRequestModel>() {
         @Override
         public void onResponse(Call<OpenMovieRequestModel> call, Response<OpenMovieRequestModel> response) {
+
+            //Handle updating views based off of mediaType
+
+
             updateMoviePosterImageView(response.body().getPoster());
             updateRatingsData(response.body().getRatings(), response.body().getMetaScore(), response.body().getTitle());
             updateMovieDataTextView(response.body());
+            mediaType = response.body().getType();
+            movieDetailActivityViewModel.setMediaType(mediaType);
             movieDetailActivityViewModel.setMediaID(response.body().getImdbID());
             movieDetailActivityViewModel.setOpenMovieRequestModel(response.body());
             movieDetailActivityViewModel.setHasHitOMDBAPI(true);
+            System.out.println("ZZZ MediaType::: " + mediaType);
             if (movieDetailActivityViewModel.mediaID != null) {
-                NetworkServices.callStreamingAvailability(movieDetailActivityViewModel.mediaID, sarmCallBack);
+                if(!mediaType.contains("game")) {
+                    System.out.println("MEDIA_TYPE DOES NOT CONTAIN 'GAME'" + response.body().getTitle());
+                    NetworkServices.callStreamingAvailability(movieDetailActivityViewModel.mediaID, sarmCallBack);
+                }
             }
             //Add method to store info in seperate api
         }

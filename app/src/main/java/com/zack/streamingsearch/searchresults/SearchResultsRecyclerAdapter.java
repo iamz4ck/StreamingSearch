@@ -47,7 +47,7 @@ public class SearchResultsRecyclerAdapter extends RecyclerView.Adapter<SearchRes
                     Bundle bundle = new Bundle();
 
 
-                    bundle.putString("HandleCase", "MSR");
+                    //bundle.putString("HandleCase", "MSR");
 
                     bundle.putString("query", searchResults.get(myViewHolder.getAdapterPosition()).getTitle());
                     bundle.putString("imdbID", searchResults.get(myViewHolder.getAdapterPosition()).getImdbID());

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">StreamingSearch</string>
+    <string name="app_name">appVersion: 0.01 Date set 11/1/2022</string>
     <string name="streamingSearchAppInformation">Search through 11 streaming services
         to see if your show or movie is available.</string>
     <string name="searchMediaTextViewLabel">Search Media</string>
@@ -14,4 +14,5 @@
     <string name="moviePlotTextViewPlaceholder">Movie Plot.</string>
     <string name="moviePosterImageDescription">Movie Poster</string>
     <string name="backDropImageDescription">Backdrop for media</string>
+    <string name="appVersion">appVersion: 0.01 Date set 11/1/2022</string>
 </resources>

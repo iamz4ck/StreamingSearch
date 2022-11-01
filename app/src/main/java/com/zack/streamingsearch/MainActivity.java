@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
         binding.mainInformationTextView.setText(System.lineSeparator() + listToAdd);
     }
 
+
+    //Do not need to add media type here because it is starting search results.
     public void startSearchResultsRecyclerView(String searchTerm) {
         Intent intent = new Intent(this, MediaSearchResultsActivity.class);
         Bundle bundle = new Bundle();

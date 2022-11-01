@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 
 
-public class MediaSearch implements Parcelable {
+public class MediaSearch  {
 
     @SerializedName("Title")
     private String title;
@@ -23,12 +23,12 @@ public class MediaSearch implements Parcelable {
     @SerializedName("Poster")
     private String poster;
 
-    public MediaSearch(Parcel source) {
-        title = source.readString();
-        year = source.readString();
-        imdbID = source.readString();
-        type = source.readString();
-        poster = source.readString();
+    public void createPlaceHolder(String query) {
+        setTitle("No Results for: " + query);
+        setYear("Search Again.");
+        setImdbID("");
+        setType("");
+        setPoster("Media not Found.");
     }
 
     public String getTitle() {
@@ -71,30 +71,5 @@ public class MediaSearch implements Parcelable {
         this.poster = poster;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(title);
-        parcel.writeString(year);
-        parcel.writeString(imdbID);
-        parcel.writeString(type);
-        parcel.writeString(poster);
-    }
-
-    public static final Creator<MediaSearch> CREATOR = new Creator<MediaSearch>() {
-        @Override
-        public MediaSearch[] newArray(int size) {
-            return new MediaSearch[size];
-        }
-
-        @Override
-        public MediaSearch createFromParcel(Parcel source) {
-            return new MediaSearch(source);
-        }
-    };
 
 }

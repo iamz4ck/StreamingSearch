@@ -15,6 +15,7 @@ import com.zack.streamingsearch.openmoviedb.OpenMovieDatabaseClient;
 import com.zack.streamingsearch.openmoviedb.models.OpenMovieRequestMovieSearchModel;
 import com.zack.streamingsearch.services.NetworkServices;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,25 +45,49 @@ public class MediaSearchResultsActivity extends AppCompatActivity {
         NetworkServices.callOpenMovieDatabaseSearch(searchedTerm, omrmMovieSearchCallBack);
     }
 
-    public void configureRecyclerView(List movieSearchResults) {
+    public void configureRecyclerView(List movieSearchResults, boolean isMovieAvailable) {
         mediaSearchRecyclerView = findViewById(R.id.mediaSearchRecyclerView);
-        recyclerViewAdapter = new SearchResultsRecyclerAdapter(movieSearchResults,
-                new MediaClickListener() {
-                    @Override
-                    public void onClick(MediaSearch mediaSearch) {
-                        System.out.println("[MediaSearchResultsActivity configureRecyclerView()] Title:" + mediaSearch.getTitle());
-                    }
-                });
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
-        mediaSearchRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mediaSearchRecyclerView.setAdapter(recyclerViewAdapter);
-        mediaSearchRecyclerView.setLayoutManager(layoutManager);
+        if(isMovieAvailable) {
+            recyclerViewAdapter = new SearchResultsRecyclerAdapter(movieSearchResults,
+                    new MediaClickListener() {
+                        @Override
+                        public void onClick(MediaSearch mediaSearch) {
+                            System.out.println("[MediaSearchResultsActivity configureRecyclerView()] Title:" + mediaSearch.getTitle());
+                        }
+                    });
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+            mediaSearchRecyclerView.setItemAnimator(new DefaultItemAnimator());
+            mediaSearchRecyclerView.setAdapter(recyclerViewAdapter);
+            mediaSearchRecyclerView.setLayoutManager(layoutManager);
+        } else {
+            recyclerViewAdapter = new SearchResultsRecyclerAdapter(movieSearchResults,
+                    new MediaClickListener() {
+                        @Override
+                        public void onClick(MediaSearch mediaSearch) {
+                            System.out.println("[MediaSearchResultsActivity configureRecyclerView()] Title:" + mediaSearch.getTitle());
+                        }
+                    });
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+            mediaSearchRecyclerView.setItemAnimator(new DefaultItemAnimator());
+            mediaSearchRecyclerView.setAdapter(recyclerViewAdapter);
+            mediaSearchRecyclerView.setLayoutManager(layoutManager);
+
+        }
     }
 
     public Callback<OpenMovieRequestMovieSearchModel> omrmMovieSearchCallBack = new Callback<OpenMovieRequestMovieSearchModel>() {
         @Override
         public void onResponse(Call<OpenMovieRequestMovieSearchModel> call, Response<OpenMovieRequestMovieSearchModel> response) {
-            configureRecyclerView(Arrays.asList(response.body().getMediaSearches()));
+            if(response.body().getMediaSearches() != null) {
+                configureRecyclerView(Arrays.asList(response.body().getMediaSearches()), true);
+            } else {
+                if(response.body().getError().contains("Movie not found!")) {
+                    ArrayList<MediaSearch> mediaNotFoundPlaceHolder = new ArrayList<MediaSearch>();
+                    MediaSearch mediaSearch = configureMediaNotFoundPlaceHolder(query);
+                    mediaNotFoundPlaceHolder.add(mediaSearch);
+                    configureRecyclerView(mediaNotFoundPlaceHolder, false);
+                }
+            }
         }
 
         @Override
@@ -70,6 +95,12 @@ public class MediaSearchResultsActivity extends AppCompatActivity {
             System.out.println("[MovieSearchResultsActivity] callback omrmMovieSearchCallBack ERROR " + t.getMessage());
         }
     };
+
+    public MediaSearch configureMediaNotFoundPlaceHolder(String query) {
+        MediaSearch mediaSearch = new MediaSearch();
+        mediaSearch.createPlaceHolder(query);
+        return mediaSearch;
+    }
 
     public void configureMediaSearchView() {
         mediaSearchView = findViewById(R.id.mediaSearchView_InRecView);
